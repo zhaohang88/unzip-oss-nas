@@ -1,0 +1,125 @@
+# 规范文档参考:
+# 中文：https://github.com/Serverless-Devs/Serverless-Devs/blob/master/spec/zh/0.0.2/serverless_package_model/package_model.md#应用模型规范
+# English: https://github.com/Serverless-Devs/Serverless-Devs/blob/master/spec/en/0.0.2/serverless_package_model/package_model.md#Application-model-specification
+# --------------
+# Package 开发发布最佳实践:
+#   - [社区讨论 #62](https://github.com/Serverless-Devs/Serverless-Devs/discussions/62);
+#   - [社区讨论 #407](https://github.com/Serverless-Devs/Serverless-Devs/discussions/407);
+#   - [社区讨论 #439](https://github.com/Serverless-Devs/Serverless-Devs/discussions/439);
+
+Type: Application
+Name: unzip-oss-nas
+Provider:
+  - 阿里云 
+Version: 1.0.14
+Description: 使用函数计算+nas，自动解压上传到OSS指定前缀目录的zip文件，主要用于解压超过10G的单文件
+HomePage: 项目首页地址
+Tags:
+  - OSS上zip文件自动解压
+  - 函数计算 OSS 触发器
+Category: 其它
+Service: # 使用的服务
+  函数计算:
+    Authorities:
+      - AliyunFCFullAccess
+  OSS:
+    Authorities:
+      - AliyunOSSFullAccess
+  硬盘挂载:
+    Authorities:
+      - AliyunNASFullAccess
+  VPC:
+    Authorities:
+      - AliyunVPCFullAccess
+  其它:
+    Authorities:
+      - AliyunECSFullAccess
+Parameters:
+  type: object
+  additionalProperties: false # 不允许增加其他属性
+  required: # 必填项
+    - region
+    - serviceName
+    - functionName
+    - roleArn
+    - bucketName
+    - prefix
+    - processedDir
+    - retainFileName
+  properties:
+    region:
+      title: 地域
+      type: string
+      default: cn-hangzhou
+      description: 创建应用所在的地区
+      enum:
+        - cn-beijing
+        - cn-hangzhou
+        - cn-shanghai
+        - cn-qingdao
+        - cn-zhangjiakou
+        - cn-huhehaote
+        - cn-shenzhen
+        - cn-chengdu
+        - cn-hongkong
+        - ap-southeast-1
+        - ap-southeast-2
+        - ap-southeast-3
+        - ap-southeast-5
+        - ap-northeast-1
+        - eu-central-1
+        - eu-west-1
+        - us-west-1
+        - us-east-1
+        - ap-south-1
+    serviceName:
+      title: 服务名
+      type: string
+      default: unzip-oss-with-nas
+      pattern: "^[a-zA-Z_][a-zA-Z0-9-_]{0,127}$"
+      description: 应用所属的函数计算服务,只能包含字母、数字、下划线和中划线。不能以数字、中划线开头。长度在 1-128 之间
+    functionName:
+      title: 函数名
+      type: string
+      default: oss-invoke-fc-nas
+      pattern: "^[a-zA-Z_][a-zA-Z0-9-_]{0,63}$"
+      description: 应用的函数名称, 只能包含字母、数字、下划线和中划线。不能以数字、中划线开头。长度在 1-64 之间
+    roleArn:
+      title: RAM角色ARN
+      type: string
+      default: ""
+      pattern: "^acs:ram::[0-9]*:role/.*$"
+      description: 应用所属的函数计算服务配置的 role, 请提前创建好对应的 role, 授信函数计算服务, 并配置好 AliyunOSSFullAccess 和 AliyunFCDefaultRolePolicy policy。
+      required: true
+      x-role:
+        name: fcunzipossrole
+        service: fc
+        authorities:
+          - AliyunOSSFullAccess
+          - AliyunFCDefaultRolePolicy
+    bucketName:
+      title: OSS存储桶名
+      type: string
+      default: ""
+      description: OSS存储桶名(注意和函数同地域)
+      x-bucket:
+        dependency:
+          - region
+    prefix:
+      title: 前缀
+      type: string
+      default: ""
+      description: 建议设置精准的前缀，同一个 Bucket 下的不同触发器条件不能重叠包含
+    processedDir:
+      title: 解压目标目录
+      type: string
+      default: dst
+      description: 将匹配到的文件解压到此目标目录下。为防止循环触发产生不必要的费用，建议您设置不同于前缀的目标目录。
+    retainFileName:
+      title: 是否保留压缩文件名为路径目录
+      type: string
+      default: "false"
+      description: 是否保留压缩文件名为路径目录？ 若为 true, 您的目标目录为target, 压缩文件名为source.zip, 则解压后文件路径为target/source/..., 否则为 target/...。
+      enum:
+        - "true"
+        - "false"
