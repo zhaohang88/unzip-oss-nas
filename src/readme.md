@@ -1,37 +1,4 @@
-# unzip-oss-nas 帮助文档
 
-<p align="center" class="flex justify-center">
-    <a href="https://www.serverless-devs.com" class="ml-1">
-    <img src="http://editor.devsapp.cn/icon?package=unzip-oss-nas&type=packageType">
-  </a>
-  <a href="http://www.devsapp.cn/details.html?name=unzip-oss-nas" class="ml-1">
-    <img src="http://editor.devsapp.cn/icon?package=unzip-oss-nas&type=packageVersion">
-  </a>
-  <a href="http://www.devsapp.cn/details.html?name=unzip-oss-nas" class="ml-1">
-    <img src="http://editor.devsapp.cn/icon?package=unzip-oss-nas&type=packageDownload">
-  </a>
-</p>
-
-<description>
-
-> ***快速部署自动解压上传到OSS指定前缀目录的zip文件的应用到阿里云函数计算***
-
-</description>
-
-<table>
-</table>
-
-<codepre id="codepre">
-
-</codepre>
-
-<deploy>
-
-## 部署 & 体验
-
-<appcenter>
-
-- :fire: 通过 [S
 > 注：当前项目为 Serverless Devs 应用，由于应用中会存在需要初始化才可运行的变量（例如应用部署地区、服务名、函数名等等），所以**不推荐**直接 Clone 本仓库到本地进行部署或直接复制 s.yaml 使用，**强烈推荐**通过 `s init ` 的方法或应用中心进行初始化，详情可参考[部署 & 体验](#部署--体验) 。
 
 # unzip-oss-nas 帮助文档
@@ -49,7 +16,7 @@
 
 <description>
 
-使用函数计算自动解压上传到OSS指定前缀目录的zip文件
+使用函数计算+nas，自动解压上传到OSS指定前缀目录的zip文件，主要用于解压超过10G的单文件
 
 </description>
 
@@ -89,10 +56,10 @@
 | 服务/业务 |  权限 |  备注  |
 | --- |  --- |   --- |
 | 函数计算 | AliyunFCFullAccess |  创建和更新 unzip 解压函数 |
-| 对象存储 | AliyunOSSFullAccess |  创建或更新 unzip 解压函数的 OSS 触发器 |
-| 文件存储 | AliyunNASFullAccess |  待解压的zip文件和解压后的文件工作目录位于 NAS |
-| VPC | AliyunVPCFullAccess | 自动创建的 NAS 挂载点必须有 VPC, VPC 需要能自动创建 |
-| 安全组 | AliyunECSFullAccess | 函数计算 VPC config 需要有安全组，安全组需要能自动创建 |
+| OSS | AliyunOSSFullAccess |  创建或更新 unzip 解压函数的 OSS 触发器 |
+| 硬盘挂载 | AliyunNASFullAccess |  待解压的zip文件和解压后的文件工作目录位于 NAS |
+| VPC | AliyunVPCFullAccess |  自动创建的 NAS 挂载点必须有 VPC, VPC 需要能自动创建 |
+| 其它 | AliyunECSFullAccess |  函数计算 VPC config 需要有安全组，安全组需要能自动创建 |
 
 </auth>
 
@@ -128,6 +95,7 @@
 ## 应用详情
 
 <appdetail id="flushContent">
+
 
 ![](http://image.editor.devsapp.cn/alibaba/4A5uks4sawFd26h9ksuc.png)
 
@@ -172,25 +140,23 @@
 
 - 默认设置的函数执行时长为2h， 如果不满足需求， 自己直接调整函数的 timeout,  最大可到 24h
 
-
 </appdetail>
 
 ## 使用文档
 
 <usedetail id="flushContent">
 
-
-## 参数说明
+##  参数说明
 
 
 ![](http://image.editor.devsapp.cn/alibaba/kD1lbEw48Er4s27212ri.png)
 
 
-## 配置示例
+##  配置示例
 ![](http://image.editor.devsapp.cn/alibaba/lASAfezjvifa9Cwawht6.png)
 
 
-## 二次开发示例
+##  二次开发示例
 上面的示例, 解压保存回去的都还是本身触发函数的 OSS， 如果是保存到其他 OSS， 直接将 `bucket.put_object(newKey + name, file_obj)` 这样上传回 oss 的代码修改下即可， 比如：
 
 ```python
