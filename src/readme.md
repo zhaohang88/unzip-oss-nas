@@ -97,6 +97,8 @@
 <appdetail id="flushContent">
 
 
+原理如下图所示：
+
 ![](http://image.editor.devsapp.cn/alibaba/4A5uks4sawFd26h9ksuc.png)
 
 匹配解压规则的ZIP文件在上传到OSS后，会自动触发函数计算进行解压。函数的逻辑是将 OSS 上的 zip 包拉取到函数计算执行容器挂载的nas中进行解压上传， 文件解压完成后，会将 NAS 上的解压文件上传到OSS的指定目录中，最后清除 NAS 上的工作目录。
@@ -130,7 +132,7 @@
  ```
 
 
-## 注意事项
+### 注意事项
 
 - 建议使用UTF-8或GB 2312编码命名您的文件或文件夹，否则可能会出现解压后的文件或文件夹名称出现乱码、解压过程中断等问题。
 
@@ -146,17 +148,18 @@
 
 <usedetail id="flushContent">
 
-##  参数说明
+###  参数说明
 
 
 ![](http://image.editor.devsapp.cn/alibaba/kD1lbEw48Er4s27212ri.png)
 
 
-##  配置示例
+### 配置示例
 ![](http://image.editor.devsapp.cn/alibaba/lASAfezjvifa9Cwawht6.png)
 
 
-##  二次开发示例
+###  二次开发示例
+
 上面的示例, 解压保存回去的都还是本身触发函数的 OSS， 如果是保存到其他 OSS， 直接将 `bucket.put_object(newKey + name, file_obj)` 这样上传回 oss 的代码修改下即可， 比如：
 
 ```python
