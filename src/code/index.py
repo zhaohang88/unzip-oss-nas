@@ -4,7 +4,7 @@ import os
 import oss2
 import time
 import logging
-import zipfile
+from zipfile import ZipFile
 from oss2 import SizedFileAdapter, determine_part_size
 from oss2.models import PartInfo
 import subprocess
@@ -29,7 +29,8 @@ def handler(event, context):
     if RETAIN_FILE_NAME == "false":
         newKeyPrefix = PROCESSED_DIR
     else:
-        newKeyPrefix = PROCESSED_DIR + zip_name
+        zip_name_pre = zip_name.split(".")[0]
+        newKeyPrefix = PROCESSED_DIR + zip_name_pre
 
     tmpWorkDir = "/mnt/auto/{}".format(context.request_id)
     if not os.path.exists(tmpWorkDir):
@@ -43,8 +44,8 @@ def handler(event, context):
     bucket_object_name = bucket_name + "/" + object_name
     tmpZipfile = "{}/{}".format(tmpWorkDir, zip_name)
     bucket.get_object_to_file(object_name, tmpZipfile)
-
-    with zipfile.ZipFile(tmpZipfile) as zip_file:
+            
+    with support_gbk(ZipFile(tmpZipfile)) as zip_file:
         zip_list = zip_file.namelist()
         for f in zip_list:
             zip_file.extract(f, tmpWorkDir)
@@ -52,7 +53,19 @@ def handler(event, context):
     subprocess.check_call("rm -rf {}".format(tmpZipfile), shell=True)
     listDir(tmpWorkDir, bucket, newKeyPrefix)
     subprocess.check_call("rm -rf {}".format(tmpWorkDir), shell=True)
-
+    
+    #改文件名编码
+def support_gbk(zip_file: ZipFile):
+    print(zip_file)
+    name_to_info = zip_file.NameToInfo
+    # copy map first
+    for name, info in name_to_info.copy().items():
+        real_name = name.encode('cp437').decode('gbk')
+        if real_name != name:
+            info.filename = real_name
+            del name_to_info[name]
+            name_to_info[real_name] = info
+    return zip_file
 
 def listDir(destDir, bucket, newKeyPrefix):
     for filename in os.listdir(destDir):
